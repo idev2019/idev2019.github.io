@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Precinho — Alerta de Ofertas</title>
+  <meta name="description" content="Diga o que você quer e quanto quer pagar. O Precinho garimpa as ofertas das maiores lojas e avisa quando o preço baixa. Grátis para Android e iPhone." />
+  <meta name="theme-color" content="#FF4D17" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Precinho — Preço baixou? A gente avisa." />
+  <meta property="og:description" content="Alertas de ofertas de Mercado Livre, Shopee, Amazon, Magalu e mais. Grátis para Android e iPhone." />
+  <meta property="og:image" content="https://idev2019.github.io/precinho/assets/icon.png" />
+  <meta property="og:url" content="https://idev2019.github.io/precinho/" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* colors from the app's design tokens (achados-design/tokens.json) */
+    :root {
+      --bg: #F6F5F1; --surface: #FFFFFF; --muted: #EFEDE7; --border: #E7E4DC;
+      --ink: #15140F; --text2: #6A685F; --accent: #FF4D17; --accent-2: #FF7A3D;
+      --accent-soft: #FFE9E0; --good: #0B9B6A; --good-soft: #DDF4EA; --notif: #FFFFFFF2;
+      --radius: 20px; --button: 28px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #100F0D; --surface: #1B1A17; --muted: #272521; --border: #2F2C28;
+        --ink: #F5F3EE; --text2: #ABA79D; --accent: #FF5C2B; --accent-soft: #3A1A0E;
+        --good: #34C98F; --good-soft: #0F2A1F; --notif: #201E1BF2;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+      background: var(--bg); color: var(--ink); line-height: 1.45;
+      -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    }
+    a { color: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* ---------- hero ---------- */
+    .hero {
+      position: relative; overflow: hidden; color: #fff; text-align: center;
+      background: radial-gradient(120% 70% at 50% 0%, var(--accent-2) 0%, var(--accent) 55%, #E8400F 100%);
+      padding: 44px 16px 0;
+    }
+    .deco { position: absolute; inset: 0; pointer-events: none; }
+    .deco span {
+      position: absolute; font-weight: 800; color: #fff; opacity: .16; user-select: none;
+      animation: drift var(--d, 18s) ease-in-out infinite alternate;
+    }
+    @keyframes drift {
+      from { transform: translate(0, 0) rotate(-8deg); }
+      to   { transform: translate(var(--x, 14px), var(--y, -22px)) rotate(8deg); }
+    }
+    .inner { position: relative; max-width: 440px; margin: 0 auto; }
+    .icon {
+      width: 96px; height: 96px; border-radius: 24px; margin: 0 auto 20px;
+      box-shadow: 0 14px 34px rgba(120, 30, 0, .35);
+      animation: pop .6s cubic-bezier(.34, 1.56, .64, 1) both;
+    }
+    @keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    h1 { font-size: clamp(34px, 9vw, 48px); line-height: 1.05; letter-spacing: -.03em; font-weight: 800; }
+    h1 em {
+      display: inline-block; font-style: normal; background: var(--ink); color: #fff;
+      padding: 2px 14px 6px; border-radius: 14px; margin-top: 6px;
+    }
+    @media (prefers-color-scheme: dark) { h1 em { background: #15140F; } }
+    .lead { margin: 16px auto 0; max-width: 360px; font-size: 16.5px; font-weight: 500; opacity: .94; }
+
+    .fade { animation: up .6s cubic-bezier(.2, .8, .2, 1) both; animation-delay: var(--delay, 0s); }
+    /* translate (not transform) so the entrance never blocks the buttons' hover transform */
+    @keyframes up { from { translate: 0 14px; opacity: 0; } to { translate: 0 0; opacity: 1; } }
+
+    /* ---------- link buttons ---------- */
+    .links { display: grid; gap: 10px; margin: 26px auto 0; max-width: 380px; }
+    .btn {
+      display: flex; align-items: center; gap: 14px; text-decoration: none; text-align: left;
+      background: #fff; color: #15140F; border-radius: var(--button); padding: 12px 18px 12px 14px;
+      font-weight: 700; font-size: 16px; box-shadow: 0 6px 18px rgba(120, 30, 0, .18);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .btn:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(120, 30, 0, .3); }
+    .btn:active { transform: scale(.97); box-shadow: 0 4px 12px rgba(120, 30, 0, .2); }
+    .btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+    .btn .ic { transition: background .15s ease, transform .25s cubic-bezier(.34, 1.56, .64, 1); }
+    .btn:hover .ic { background: #FFE9E0; transform: scale(1.08) rotate(-4deg); }
+    .btn .go { transition: transform .2s ease, color .2s ease; }
+    .btn:hover .go { transform: translateX(4px); color: #FF4D17; }
+    .btn .ic {
+      width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; flex: none;
+      background: #F6F5F1;
+    }
+    .btn .ic svg { width: 22px; height: 22px; }
+    .btn small { display: block; font-size: 12.5px; font-weight: 500; color: #6A685F; margin-top: 1px; }
+    .btn .go { margin-left: auto; color: #A4A198; font-size: 20px; line-height: 1; }
+
+    /* ---------- phone ---------- */
+    .stage { position: relative; width: 100%; max-width: 330px; margin: 44px auto 0; height: 430px; }
+    .phone {
+      position: absolute; left: 50%; top: 0; width: 280px; margin-left: -140px;
+      border-radius: 44px 44px 0 0; background: #15140F; padding: 9px 9px 0;
+      box-shadow: 0 -10px 40px rgba(90, 20, 0, .35);
+      animation: sway 7s ease-in-out infinite;
+      transform-origin: 50% 100%;
+    }
+    .phone img { border-radius: 36px 36px 0 0; height: 421px; width: 100%; object-fit: cover; object-position: top; }
+    .notif {
+      position: absolute; left: -6px; right: -6px; top: 62px; z-index: 2;
+      display: flex; gap: 12px; align-items: center; text-align: left; color: var(--ink);
+      background: var(--notif); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-radius: 22px; padding: 12px 14px; box-shadow: 0 14px 34px rgba(60, 15, 0, .28);
+      animation: sway 7s ease-in-out infinite, drop .7s .5s cubic-bezier(.34, 1.56, .64, 1) both;
+      animation-delay: -.6s, .5s;
+    }
+    .notif img { width: 42px; height: 42px; border-radius: 11px; flex: none; }
+    .notif .t { font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; }
+    .notif .t span { font-weight: 500; color: var(--text2); font-size: 12.5px; }
+    .notif .b { font-size: 13.5px; color: var(--ink); }
+    .notif .b b { font-weight: 700; }
+    .notif > div { flex: 1; }
+    @keyframes sway { 0%, 100% { transform: rotate(-1.6deg) translateY(0); } 50% { transform: rotate(1.6deg) translateY(-6px); } }
+    @keyframes drop { from { opacity: 0; translate: 0 -24px; scale: .9; } to { opacity: 1; translate: 0 0; scale: 1; } }
+
+    /* ---------- features ---------- */
+    section.features { max-width: 1100px; margin: 0 auto; padding: 56px 16px 24px; }
+    .kicker { color: var(--accent); font-weight: 700; font-size: 14px; letter-spacing: .02em; text-align: center; }
+    h2 { font-size: clamp(26px, 6vw, 34px); letter-spacing: -.02em; line-height: 1.12; text-align: center; margin: 6px 0 30px; font-weight: 800; }
+    h2 em { font-style: normal; color: var(--accent); }
+    .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; opacity: 0; transform: translateY(16px);
+      transition: opacity .5s ease, transform .5s cubic-bezier(.2, .8, .2, 1);
+    }
+    .card.in { opacity: 1; transform: none; }
+    .card .em { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; background: var(--accent-soft); margin-bottom: 14px; }
+    .card h3 { font-size: 18px; letter-spacing: -.01em; margin-bottom: 6px; }
+    .card p { color: var(--text2); font-size: 15px; }
+    .chip { display: inline-block; margin-top: 12px; font-size: 13px; font-weight: 700; padding: 6px 11px; border-radius: 20px; white-space: nowrap; }
+    .chip.good { background: var(--good-soft); color: var(--good); }
+    .chip.ink { background: var(--ink); color: var(--bg); }
+    .chip.accent { background: var(--accent-soft); color: var(--accent); }
+
+    .stores { text-align: center; color: var(--text2); font-size: 14.5px; padding: 20px 16px 8px; max-width: 560px; margin: 0 auto; }
+    .stores b { color: var(--ink); }
+
+    footer { text-align: center; color: var(--text2); font-size: 13px; padding: 28px 16px 40px; }
+    footer a { color: var(--text2); }
+    footer .row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
+
+    @media (min-width: 900px) {
+      .hero { padding-top: 64px; }
+      .hero .inner.split { max-width: 900px; display: grid; grid-template-columns: 1fr 340px; gap: 48px; text-align: left; align-items: end; }
+      .split .icon { margin-left: 0; }
+      .split .lead { margin-left: 0; }
+      .split .links { margin-left: 0; margin-bottom: 56px; }
+      .split .stage { margin-top: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .card { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="deco" aria-hidden="true">
+      <span style="left:6%;top:10%;font-size:46px;--d:17s;--x:18px;--y:-26px">%</span>
+      <span style="left:84%;top:7%;font-size:38px;--d:21s;--x:-16px;--y:24px">$</span>
+      <span style="left:72%;top:34%;font-size:30px;--d:15s;--x:-20px;--y:-18px">✦</span>
+      <span style="left:10%;top:46%;font-size:34px;--d:19s;--x:22px;--y:16px">$</span>
+      <span style="left:88%;top:62%;font-size:52px;--d:23s;--x:-14px;--y:-28px">%</span>
+      <span style="left:4%;top:78%;font-size:28px;--d:16s;--x:16px;--y:-20px">✦</span>
+      <span style="left:46%;top:3%;font-size:24px;--d:20s;--x:-12px;--y:18px">✦</span>
+    </div>
+
+    <div class="inner split">
+      <div>
+        <img class="icon" src="assets/icon.png" alt="Ícone do Precinho" width="96" height="96" />
+        <h1 class="fade" style="--delay:.1s">Preço baixou?<br /><em>A gente avisa.</em></h1>
+        <p class="lead fade" style="--delay:.2s">
+          Diga o que você quer e quanto quer pagar. O Precinho garimpa as ofertas das maiores lojas
+          e te avisa na hora.
+        </p>
+
+        <nav class="links" aria-label="Baixar e seguir">
+          <a class="btn fade" style="--delay:.3s" href="https://play.google.com/store/apps/details?id=com.idev.precinho" target="_blank" rel="noopener">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="#0B9B6A" aria-hidden="true"><path d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22A11.4 11.4 0 0 0 12 8.08c-1.77 0-3.43.38-4.92 1.06L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg></span>
+            <span>Android<small>Google Play</small></span>
+            <span class="go">›</span>
+          </a>
+          <a class="btn fade" style="--delay:.36s" href="https://apps.apple.com/br/app/id6824732026" target="_blank" rel="noopener">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="#15140F" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.15-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74s1.78.74 3 .72c1.24-.02 2.02-1.12 2.78-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.41-3.69zM14.08 5.84c.63-.77 1.06-1.83.94-2.89-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.28z"/></svg></span>
+            <span>iPhone<small>App Store</small></span>
+            <span class="go">›</span>
+          </a>
+          <a class="btn fade" style="--delay:.42s" href="https://t.me/canalprecinho" target="_blank" rel="noopener">
+            <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#2AABEE"/><path fill="#fff" d="M5.4 11.7l11.1-4.3c.52-.19.97.12.8.9l-1.9 8.9c-.14.63-.51.78-1.04.49l-2.88-2.12-1.39 1.34c-.15.15-.28.28-.58.28l.21-2.93 5.33-4.82c.23-.2-.05-.32-.36-.12l-6.6 4.15-2.84-.89c-.62-.19-.63-.62.13-.92z"/></svg></span>
+            <span>Canal no Telegram<small>As melhores ofertas do dia, de graça</small></span>
+            <span class="go">›</span>
+          </a>
+          <a class="btn fade" style="--delay:.48s" href="https://instagram.com/canalprecinhoapp" target="_blank" rel="noopener">
+            <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="ig" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FEC053"/><stop offset=".5" stop-color="#F2203E"/><stop offset="1" stop-color="#7024C4"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#ig)"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.2" fill="#fff"/></svg></span>
+            <span>Instagram<small>@canalprecinhoapp</small></span>
+            <span class="go">›</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="stage fade" style="--delay:.25s" aria-hidden="true">
+        <div class="notif">
+          <img src="assets/icon.png" alt="" />
+          <div>
+            <div class="t">Precinho <span>agora</span></div>
+            <div class="b"><b>Air fryer baixou! 🔥</b><br />Philco 15L por R$ 408 · 51% off</div>
+          </div>
+        </div>
+        <div class="phone"><img src="assets/home.jpg" alt="" /></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="features">
+    <p class="kicker">✦ Como funciona</p>
+    <h2>Você diz o que quer.<br /><em>A gente garimpa.</em></h2>
+    <div class="grid">
+      <article class="card">
+        <div class="em">🔔</div>
+        <h3>Desejos com preço-alvo</h3>
+        <p>Crie um desejo, como “air fryer”, defina quanto quer pagar e receba um alerta quando aparecer.</p>
+        <span class="chip ink">🔔 Avisar abaixo de R$ 400</span>
+      </article>
+      <article class="card">
+        <div class="em">📉</div>
+        <h3>Desconto de verdade</h3>
+        <p>Comparamos com o histórico de preço dos últimos 90 dias. Sem desconto maquiado.</p>
+        <span class="chip good">✓ Menor preço em 90 dias</span>
+      </article>
+      <article class="card">
+        <div class="em">🎟️</div>
+        <h3>Cupom pronto pra usar</h3>
+        <p>Quando a oferta tem cupom, o código aparece junto. É só copiar e aproveitar.</p>
+        <span class="chip accent">Copiar cupom</span>
+      </article>
+      <article class="card">
+        <div class="em">⚡</div>
+        <h3>Sem cadastro, grátis</h3>
+        <p>Abra e use. Sem login, sem plano pago e sem anúncio no meio das ofertas.</p>
+        <span class="chip good">100% grátis</span>
+      </article>
+    </div>
+  </section>
+
+  <p class="stores">Ofertas de <b>Mercado Livre</b>, <b>Shopee</b>, <b>Amazon</b>, <b>Magalu</b>, <b>AliExpress</b>, <b>Nike</b>, <b>KaBuM!</b> e muitas outras lojas.</p>
+
+  <footer>
+    <div class="row">
+      <a href="privacidade.html">Política de privacidade</a>
+      <a href="https://t.me/canalprecinho">Telegram</a>
+      <a href="https://instagram.com/canalprecinhoapp">Instagram</a>
+      <a href="../index.html">iDev</a>
+    </div>
+    Os links de compra são de afiliado: você paga o mesmo preço e o Precinho recebe uma pequena comissão.
+  </footer>
+
+  <script>
+    // cards rise in as they scroll into view
+    const cards = document.querySelectorAll('.card');
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          const i = [...cards].indexOf(e.target);
+          setTimeout(() => e.target.classList.add('in'), (i % 4) * 80);
+          io.unobserve(e.target);
+        });
+      }, { threshold: .15 });
+      cards.forEach((c) => io.observe(c));
+    } else {
+      cards.forEach((c) => c.classList.add('in'));
+    }
+  </script>
+</body>
+</html>
