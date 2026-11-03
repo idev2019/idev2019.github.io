@@ -96,6 +96,7 @@
     }
     .btn .ic svg { width: 22px; height: 22px; }
     .btn small { display: block; font-size: 12.5px; font-weight: 500; color: #6A685F; margin-top: 1px; }
+    .btn.mine { box-shadow: 0 0 0 3px #15140F, 0 10px 26px rgba(120, 30, 0, .3); }
     .btn .go { margin-left: auto; color: #A4A198; font-size: 20px; line-height: 1; }
 
     /* ---------- phone ---------- */
@@ -189,12 +190,12 @@
         </p>
 
         <nav class="links" aria-label="Baixar e seguir">
-          <a class="btn fade" style="--delay:.3s" href="https://play.google.com/store/apps/details?id=com.idev.precinho" target="_blank" rel="noopener">
+          <a id="get-android" class="btn fade" style="--delay:.3s" href="https://play.google.com/store/apps/details?id=com.idev.precinho" target="_blank" rel="noopener">
             <span class="ic"><svg viewBox="0 0 24 24" fill="#0B9B6A" aria-hidden="true"><path d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22A11.4 11.4 0 0 0 12 8.08c-1.77 0-3.43.38-4.92 1.06L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg></span>
             <span>Android<small>Google Play</small></span>
             <span class="go">›</span>
           </a>
-          <a class="btn fade" style="--delay:.36s" href="https://apps.apple.com/br/app/id6824732026" target="_blank" rel="noopener">
+          <a id="get-ios" class="btn fade" style="--delay:.36s" href="https://apps.apple.com/br/app/id6824732026" target="_blank" rel="noopener">
             <span class="ic"><svg viewBox="0 0 24 24" fill="#15140F" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.15-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74s1.78.74 3 .72c1.24-.02 2.02-1.12 2.78-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.41-3.69zM14.08 5.84c.63-.77 1.06-1.83.94-2.89-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.28z"/></svg></span>
             <span>iPhone<small>App Store</small></span>
             <span class="go">›</span>
@@ -284,6 +285,22 @@
     } else {
       cards.forEach((c) => c.classList.add('in'));
     }
+
+    // ad and partner links (?utm_source=google&utm_medium=search&utm_campaign=...) carry their origin into the
+    // stores: Play reads it as the install referrer (shows up in GA), the App Store as the campaign token
+    const q = new URLSearchParams(location.search);
+    const utm = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].filter((k) => q.get(k)).map((k) => k + '=' + q.get(k)).join('&');
+    const android = document.getElementById('get-android'), ios = document.getElementById('get-ios');
+    if (utm) {
+      android.href += '&referrer=' + encodeURIComponent(utm);
+      const ct = [q.get('utm_source'), q.get('utm_campaign')].filter(Boolean).join('_').slice(0, 40);
+      ios.href += '?ct=' + encodeURIComponent(ct) + '&mt=8';
+    }
+    // the visitor's own store first and highlighted
+    const ua = navigator.userAgent;
+    const isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isIOS) { ios.parentNode.insertBefore(ios, android); ios.classList.add('mine'); }
+    else if (/Android/.test(ua)) android.classList.add('mine');
   </script>
 </body>
 </html>
