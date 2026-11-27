@@ -39,3 +39,5 @@ adform.com, 3354, RESELLER, 9f5210a2f0999e32
 # Equativ (Open Bidding)
 smartadserver.com, 4194-OB, RESELLER, 060d053dcf45cbf3
 smartadserver.com, 4194, RESELLER, 060d053dcf45cbf3
+sharethrough.com, 4194-OB, RESELLER, 060d053dcf45cbf3
+sharethrough.com, 4194, RESELLER, 060d053dcf45cbf3
